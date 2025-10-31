@@ -1,4 +1,6 @@
-Flask>=2.0
+# requirements.txt
+
+Flask[async]>=2.0  # <--- YAHI HAI ASLI FIX!
 aiohttp>=3.8
 aiodns
 brotli
