@@ -1,6 +1,7 @@
 # requirements.txt
 
-Flask[async]>=2.0  # <--- YAHI HAI ASLI FIX!
+Flask[async]>=2.0
+Flask-Cors>=4.0.0  # <--- IS LINE KO ADD KARO
 aiohttp>=3.8
 aiodns
 brotli
