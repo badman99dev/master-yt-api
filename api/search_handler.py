@@ -1,5 +1,5 @@
 # api/search_handler.py
-from .config import INVIDIOUS_API_BASE
+from api.config import INVIDIOUS_API_BASE # <-- IMPORT UPDATED
 
 async def perform_search(session, query):
     """Performs a search query."""
