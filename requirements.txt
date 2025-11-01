@@ -1,6 +1,6 @@
-# requirements.txt (Optimized for Vercel with Quart)
+# requirements.txt (Final Version - Bulletproof)
 
-quart>=0.18.0
+Flask>=2.0
 aiohttp>=3.8
 aiodns
 brotli
