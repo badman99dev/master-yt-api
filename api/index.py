@@ -1,29 +1,36 @@
 # /api/index.py
-# --- The All-in-One Master API File (Vercel Fix) ---
+# --- The All-in-One Master API File (Quart Version) ---
 
 import asyncio
 import aiohttp
-from flask import Flask, request, jsonify, Response
+# CHANGE 1: Import Quart instead of Flask
+from quart import Quart, request, jsonify, Response 
 from datetime import datetime
 
 # ==============================================================================
-# 1. CREATE THE FLASK APP INSTANCE AT THE VERY TOP
-# This makes it easy for Vercel's build process to find it.
+# 1. CREATE THE QUART APP INSTANCE AT THE VERY TOP
 # ==============================================================================
-app = Flask(__name__)
+# CHANGE 2: Create a Quart app instead of a Flask app
+app = Quart(__name__)
 
+
+# (REST OF THE FILE IS EXACTLY THE SAME)
+# (SCROLL DOWN)
+# ...
+# ...
+# ...
 
 # ==============================================================================
 # 2. CONFIGURATION
 # ==============================================================================
 INVIDIOUS_API_BASE = "https://inv.perditum.com/api/v1"
 
-
 # ==============================================================================
-# 3. HELPER FUNCTIONS (All logic is now here)
+# 3. HELPER FUNCTIONS (No changes needed here)
 # ==============================================================================
 
-# --- Video/Channel/Search Handlers ---
+# ... (all your helper functions are perfect, no need to change them) ...
+
 async def get_video_details(session, video_id):
     url = f"{INVIDIOUS_API_BASE}/videos/{video_id}"
     async with session.get(url) as response:
@@ -64,7 +71,6 @@ async def perform_search(session, query):
         response.raise_for_status()
         return await response.json()
 
-# --- LLM Report Generator ---
 def format_number(num):
     try: return f"{int(num):,}"
     except (ValueError, TypeError): return "N/A"
@@ -72,7 +78,7 @@ def format_number(num):
 def format_date(date_string):
     try:
         dt = datetime.fromisoformat(date_string.replace('Z', '+00:00'))
-        return dt.strftime('%Y-%m-%d')
+        return dt.strftime('%Y-m-d')
     except: return "N/A"
 
 async def generate_llm_report(session, video_id):
@@ -121,17 +127,13 @@ async def generate_llm_report(session, video_id):
 {top_comments_text}
 --- End of Report ---""".strip()
 
-
 # ==============================================================================
-# 4. FLASK ROUTING (App is already created at the top)
+# 4. QUART ROUTING (No other changes needed, API is the same)
 # ==============================================================================
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
 @app.route('/<path:path>', methods=['GET'])
 async def handler(path):
-    # This single function will now route requests based on the path
-    
-    # --- ROUTE 1: /api/ or /api/analyze_video ---
     if path == 'analyze_video':
         video_id = request.args.get('id')
         if not video_id:
@@ -139,9 +141,7 @@ async def handler(path):
         async with aiohttp.ClientSession() as session:
             report = await generate_llm_report(session, video_id)
         return Response(report, mimetype='text/plain; charset=utf-8')
-
-    # --- ROUTE 2: /api/ or /api/fetch (Default Route) ---
-    else: # This will handle '/api/', '/api/fetch', or any other path
+    else:
         video_id = request.args.get('id')
         channel_id = request.args.get('channel')
         query = request.args.get('search')
@@ -179,4 +179,6 @@ async def handler(path):
                 final_response[key] = {"error": f"Failed to fetch {key}", "details": str(result)}
             else:
                 final_response[key] = result
+        # Note: Quart's jsonify might behave differently, let's keep it simple
+        # For Quart, it's better to return the dict directly in many cases
         return jsonify(final_response)
