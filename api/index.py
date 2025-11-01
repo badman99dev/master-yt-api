@@ -1,5 +1,5 @@
 # /api/index.py
-# --- The All-in-One Master API File ---
+# --- The All-in-One Master API File (Vercel Fix) ---
 
 import asyncio
 import aiohttp
@@ -7,13 +7,20 @@ from flask import Flask, request, jsonify, Response
 from datetime import datetime
 
 # ==============================================================================
-# 1. CONFIGURATION
+# 1. CREATE THE FLASK APP INSTANCE AT THE VERY TOP
+# This makes it easy for Vercel's build process to find it.
+# ==============================================================================
+app = Flask(__name__)
+
+
+# ==============================================================================
+# 2. CONFIGURATION
 # ==============================================================================
 INVIDIOUS_API_BASE = "https://inv.perditum.com/api/v1"
 
 
 # ==============================================================================
-# 2. HELPER FUNCTIONS (All logic is now here)
+# 3. HELPER FUNCTIONS (All logic is now here)
 # ==============================================================================
 
 # --- Video/Channel/Search Handlers ---
@@ -116,9 +123,8 @@ async def generate_llm_report(session, video_id):
 
 
 # ==============================================================================
-# 3. FLASK APP & ROUTING
+# 4. FLASK ROUTING (App is already created at the top)
 # ==============================================================================
-app = Flask(__name__)
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
 @app.route('/<path:path>', methods=['GET'])
