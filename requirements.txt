@@ -1,9 +1,6 @@
-# requirements.txt
+# requirements.txt (Optimized for Vercel)
 
 Flask[async]>=2.0
-Flask-Cors>=4.0.0  # <--- IS LINE KO ADD KARO
 aiohttp>=3.8
 aiodns
 brotli
-gunicorn>=20.0
-gevent>=21.0
