@@ -1,6 +1,6 @@
 # api/video_handler.py
 import asyncio
-from .config import INVIDIOUS_API_BASE
+from api.config import INVIDIOUS_API_BASE # <-- IMPORT UPDATED
 
 async def get_video_details(session, video_id):
     """Fetches main details for a video."""
@@ -25,8 +25,10 @@ async def get_transcript(session, video_id):
         if not data.get('captions'):
             return {"error": "No captions available."}
         
+        # Note: The original transcript URL was hardcoded. This is better.
         transcript_path = data['captions'][0]['url']
-        full_transcript_url = f"https://invidious.sethforprivacy.com{transcript_path}"
+        base_url = INVIDIOUS_API_BASE.split('/api/v1')[0]
+        full_transcript_url = f"{base_url}{transcript_path}"
         
         async with session.get(full_transcript_url) as tr:
             tr.raise_for_status()
