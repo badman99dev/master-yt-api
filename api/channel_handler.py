@@ -1,5 +1,5 @@
 # api/channel_handler.py
-from .config import INVIDIOUS_API_BASE
+from api.config import INVIDIOUS_API_BASE # <-- IMPORT UPDATED
 
 async def get_channel_details(session, channel_id):
     """Fetches details for a channel (banner, videos, etc.)."""
