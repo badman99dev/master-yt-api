@@ -1,0 +1,147 @@
+<!-- /index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master YT API Interface</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container { max-width: 900px; margin: auto; }
+        h1 { color: var(--primary-color); text-align: center; }
+        .card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        h2 { border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-top: 0; }
+        input[type="text"], button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #2c2c2c;
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            font-weight: bold;
+            border: none;
+        }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        .checkbox-group { margin-bottom: 1rem; display: flex; gap: 1rem; }
+        pre {
+            background-color: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+        .loader { text-align: center; font-size: 1.2rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Master YT API Interface 🚀</h1>
+
+        <!-- Search Card -->
+        <div class="card">
+            <h2>1. Search Videos</h2>
+            <input type="text" id="searchInput" placeholder="e.g., MrBeast new video">
+            <button onclick="handleSearch()">Search</button>
+        </div>
+
+        <!-- Fetch Details Card -->
+        <div class="card">
+            <h2>2. Fetch Video Details</h2>
+            <input type="text" id="fetchIdInput" placeholder="e.g., dQw4w9WgXcQ">
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="fields" value="details" checked> Details</label>
+                <label><input type="checkbox" name="fields" value="comments"> Comments</label>
+                <label><input type="checkbox" name="fields" value="transcript"> Transcript</label>
+            </div>
+            <button onclick="handleFetch()">Fetch Details</button>
+        </div>
+
+        <!-- LLM Analyzer Card -->
+        <div class="card">
+            <h2>3. Get LLM Analysis Report</h2>
+            <input type="text" id="llmIdInput" placeholder="e.g., dQw4w9WgXcQ">
+            <button onclick="handleAnalyze()">Analyze for LLM</button>
+        </div>
+
+        <!-- Results Area -->
+        <div class="card">
+            <h2>Results</h2>
+            <div class="loader" id="loader">Loading...</div>
+            <pre id="results-area">Your results will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        const loader = document.getElementById('loader');
+        const resultsArea = document.getElementById('results-area');
+
+        async function apiCall(endpoint, params) {
+            const url = `/api/${endpoint}?${params}`;
+            loader.style.display = 'block';
+            resultsArea.textContent = 'Fetching data...';
+            document.querySelectorAll('button').forEach(b => b.disabled = true);
+            
+            try {
+                const response = await fetch(url);
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson ? await response.json() : await response.text();
+                
+                if (!response.ok) {
+                    throw new Error(isJson ? data.error || 'API Error' : data);
+                }
+                
+                resultsArea.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+
+            } catch (error) {
+                resultsArea.textContent = `Error: ${error.message}`;
+            } finally {
+                loader.style.display = 'none';
+                document.querySelectorAll('button').forEach(b => b.disabled = false);
+            }
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+            apiCall('fetch', `search=${encodeURIComponent(query)}`);
+        }
+
+        function handleFetch() {
+            const videoId = document.getElementById('fetchIdInput').value;
+            if (!videoId) return;
+            const checkedFields = Array.from(document.querySelectorAll('input[name="fields"]:checked')).map(cb => cb.value);
+            if (checkedFields.length === 0) {
+                alert('Please select at least one field to fetch.');
+                return;
+            }
+            apiCall
